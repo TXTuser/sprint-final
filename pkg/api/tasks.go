@@ -2,10 +2,11 @@ package api
 
 import (
 	"net/http"
-	"strconv"
-
 	"sprint-final/pkg/db"
+	"strconv"
 )
+
+const tasksLimit = 50
 
 type TaskResponse struct {
 	ID      string `json:"id"`
@@ -22,7 +23,7 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks, err := db.Tasks(50)
+	tasks, err := db.Tasks(tasksLimit)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		writeJSON(w, map[string]string{"error": err.Error()})

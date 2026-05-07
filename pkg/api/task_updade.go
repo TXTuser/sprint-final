@@ -3,15 +3,15 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-
 	"sprint-final/pkg/db"
+	"strconv"
 )
 
 func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	var bodyMap map[string]interface{}
 
 	if err := json.NewDecoder(r.Body).Decode(&bodyMap); err != nil {
+		w.WriteHeader(http.StatusBadRequest) 
 		writeJSON(w, map[string]string{"error": err.Error()})
 		return
 	}
@@ -23,6 +23,7 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		case string:
 			id, err := strconv.ParseInt(v, 10, 64)
 			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
 				writeJSON(w, map[string]string{"error": "Неверный идентификатор"})
 				return
 			}
@@ -32,6 +33,7 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		case int64:
 			task.ID = v
 		default:
+			w.WriteHeader(http.StatusBadRequest)
 			writeJSON(w, map[string]string{"error": "Неверный тип идентификатора"})
 			return
 		}
@@ -59,21 +61,25 @@ func updateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if task.ID == 0 {
+		w.WriteHeader(http.StatusBadRequest)
 		writeJSON(w, map[string]string{"error": "Не указан идентификатор"})
 		return
 	}
 
 	if task.Title == "" {
+		w.WriteHeader(http.StatusBadRequest)
 		writeJSON(w, map[string]string{"error": "empty title"})
 		return
 	}
 
 	if err := checkDate(&task); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		writeJSON(w, map[string]string{"error": err.Error()})
 		return
 	}
 
 	if err := db.UpdateTask(&task); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		writeJSON(w, map[string]string{"error": err.Error()})
 		return
 	}

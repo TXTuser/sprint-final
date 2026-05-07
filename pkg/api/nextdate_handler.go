@@ -37,5 +37,9 @@ func nextDateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Write([]byte(next))
+
+	if _, err := w.Write([]byte(next)); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

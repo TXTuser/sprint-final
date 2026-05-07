@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-
 	"sprint-final/pkg/db"
 	"sprint-final/pkg/server"
 )
@@ -20,5 +19,7 @@ func main() {
 	}
 	defer db.DB.Close()
 
-	server.Run()
+	if err := server.Run(); err != nil {
+		log.Fatal(err)
+	}
 }
